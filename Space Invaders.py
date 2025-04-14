@@ -1,6 +1,11 @@
 import pygame
+from pygame import mixer
 from pygame.locals import *
 import random
+
+
+pygame.mixer.pre_init(44100, -16, 2, 512)
+mixer.init()
 
 #define fps
 clock = pygame.time.Clock()
@@ -12,6 +17,17 @@ screen_height = 800
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Space Invanders')
+
+
+#load sounds
+explosion_fx = pygame.mixer.Sound("img/explosion.wav")
+explosion_fx.set_volume(0.25)
+
+explosion2_fx = pygame.mixer.Sound("img/explosion.wav")
+explosion2_fx.set_volume(0.25)
+
+laser_fx = pygame.mixer.Sound("img/laser.wav")
+laser_fx.set_volume(0.25)
 
 #define game variables
 rows = 5
@@ -60,6 +76,7 @@ class Spaceship(pygame.sprite.Sprite):
         time_now = pygame.time.get_ticks()
         #shoot
         if key[pygame.K_SPACE] and time_now - self.last_shot > cooldown:
+            laser_fx.play()
             bullet = Bullets(self.rect.centerx, self.rect.top)
             bullet_group.add(bullet)
             self.last_shot = time_now
@@ -90,6 +107,7 @@ class Bullets(pygame.sprite.Sprite):
             self.kill()
         if pygame.sprite.spritecollide(self, alien_group, True):
             self.kill()
+            explosion_fx.play()
             explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
             explosion_group.add(explosion)
 
@@ -125,6 +143,8 @@ class Alien_Bullets(pygame.sprite.Sprite):
         if self.rect.top > screen_height:
             self.kill()
         if pygame.sprite.spritecollide(self, spaceship_group, False, pygame.sprite.collide_mask):
+            self.kill()
+            explosion2_fx
             #reduce spaceship health
             spaceship.health_remaining -=1
             explosion = Explosion(self.rect.centerx, self.rect.centery, 1)
